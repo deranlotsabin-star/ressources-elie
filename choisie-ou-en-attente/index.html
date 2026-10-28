@@ -1070,6 +1070,11 @@ html.mode-web body{margin:0;font-family:var(--f-texte);-webkit-font-smoothing:an
 .guide-prix{margin-top:calc(20*var(--u));color:var(--doux)}
 .lien-plan{display:inline-block;margin-top:calc(48*var(--u));padding:calc(30*var(--u)) calc(56*var(--u));border-radius:999px;background:var(--accent);color:var(--sur-accent);font-family:var(--f-texte);font-weight:700;font-size:max(16px,calc(36*var(--u)));text-decoration:none}
 .mode-web .lien-plan:focus-visible{outline:3px solid var(--texte);outline-offset:3px}
+.vers-guide{position:fixed;left:50%;bottom:14px;z-index:30;display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:999px;background:#0D0D0D;color:#F3F0EA;font-family:var(--f-texte);font-size:15px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.35);transform:translate(-50%,160%);transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+.vers-guide.visible{transform:translate(-50%,0)}
+.vers-guide span{color:#C8102E}
+.vers-guide:focus-visible{outline:3px solid #C8102E;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.vers-guide{transition:none}}
 .web-bas{max-width:600px;margin:0 auto;padding:8px 16px 48px;color:var(--page-doux);font-size:14px;line-height:1.5}
 .web-bas p{margin:0 0 10px}
 .web-bas button{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:3px;color:var(--page-texte)}
@@ -1366,7 +1371,7 @@ html.mode-web body{margin:0;font-family:var(--f-texte);-webkit-font-smoothing:an
     <footer class="bas"><span class="lbl court">Choisie ou en attente ?</span><span class="progression" aria-hidden="true"><i style="width:92.3%"></i></span></footer>
   </article>
 </section>
-<section class="cadre" data-carte="guide">
+<section class="cadre" data-carte="guide" id="guide">
   <article class="carte t-clair type-guide" data-id="guide" data-type="guide" style="--kt:1;--kb:1">
     <header class="haut"><span class="lbl sig">@elie.creator</span><span class="pagination"><b>13</b> / 13</span></header>
     <div class="corps">
@@ -1524,6 +1529,24 @@ html.mode-web body{margin:0;font-family:var(--f-texte);-webkit-font-smoothing:an
   }
 
   majScore()
+})()
+</script>
+<a class="vers-guide" href="#guide" data-vers-guide aria-label="Voir le guide et le plan de 21 jours">Le plan de 21 jours <span>→</span></a>
+<script>
+// Bouton flottant vers le guide : visible pendant le test, caché sur la couverture et sur la carte du guide
+;(function () {
+  var bouton = document.querySelector("[data-vers-guide]")
+  var couv = document.querySelector('[data-carte="couv"]')
+  var guide = document.getElementById("guide")
+  if (!bouton || !couv || !guide || !("IntersectionObserver" in window)) return
+  var vus = { couv: true, guide: false }
+  function maj() { bouton.classList.toggle("visible", !vus.couv && !vus.guide) }
+  new IntersectionObserver(function (e) { vus.couv = e[0].isIntersecting; maj() }).observe(couv)
+  new IntersectionObserver(function (e) { vus.guide = e[0].isIntersecting; maj() }, { threshold: 0.2 }).observe(guide)
+  bouton.addEventListener("click", function (e) {
+    e.preventDefault()
+    guide.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" })
+  })
 })()
 </script>
 </body>
